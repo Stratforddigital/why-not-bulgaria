@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Why Not Bulgaria Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: работен панел, лява навигация (горна лента на телефон), една страница = един процес */
+:root{
+  --bg:#F4F5F2; --surface:#FFFFFF; --sunk:#ECEEEA; --ink:#1B2220; --muted:#5C6863; --line:#DCE1DD;
+  --accent:#8C2340; --accent-ink:#FFFFFF; --accent-soft:#F4E4E9;
+  --sage:#3D6A5A; --sage-soft:#E2EEE8;
+  --good:#2C7A4B; --good-soft:#E1F1E7; --warn:#A86A12; --warn-soft:#F8EDD9; --bad:#B2372F; --bad-soft:#F7E2DF;
+  --font-display:"Unbounded","Segoe UI",system-ui,sans-serif;
+  --font-body:"Onest","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111514; --surface:#191F1D; --sunk:#141917; --ink:#E7ECE9; --muted:#9BA7A2; --line:#2A3330;
+  --accent:#E07C98; --accent-ink:#1A0B10; --accent-soft:#3A2029;
+  --sage:#86BBA7; --sage-soft:#1F302A;
+  --good:#63C28A; --good-soft:#1B2E23; --warn:#E3B260; --warn-soft:#2F2615; --bad:#EC7D73; --bad-soft:#341D1B;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111514; --surface:#191F1D; --sunk:#141917; --ink:#E7ECE9; --muted:#9BA7A2; --line:#2A3330;
+  --accent:#E07C98; --accent-ink:#1A0B10; --accent-soft:#3A2029;
+  --sage:#86BBA7; --sage-soft:#1F302A;
+  --good:#63C28A; --good-soft:#1B2E23; --warn:#E3B260; --warn-soft:#2F2615; --bad:#EC7D73; --bad-soft:#341D1B;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100%}
+/* sidebar */
+.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{display:flex;flex-direction:column;gap:2px;padding:0 8px}
+.brand b{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:-.01em}
+.brand span{font-size:12px;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:14px;font-weight:500}
+.nav a:hover{background:var(--sunk)}
+.nav a.on{background:var(--accent-soft);color:var(--accent)}
+.nav .n{font-family:var(--font-mono);font-size:11px;color:var(--muted);width:18px}
+.nav a.on .n{color:var(--accent)}
+.nav .badge{margin-left:auto}
+.side-foot{margin-top:auto;font-size:12px;color:var(--muted);padding:0 8px}
+/* main */
+.main{min-width:0;padding-block:24px 60px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+.demo-bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;background:var(--sage-soft);color:var(--ink);border-radius:var(--r);padding:10px 14px;font-size:13px;margin-bottom:22px}
+.demo-bar b{color:var(--sage)}
+.page-head{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.page-head h1{font-family:var(--font-display);font-weight:600;font-size:clamp(20px,2.6vw,26px);letter-spacing:-.02em;margin:0;text-wrap:balance}
+.page-head p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel h2{font-size:15px;font-weight:600;margin:0 0 12px}
+.panel h2 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:6px}
+.kpi{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit}
+a.kpi:hover{border-color:var(--accent)}
+.kpi .v{font-family:var(--font-display);font-size:28px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .l{font-size:13px;color:var(--muted)}
+.kpi .go{font-size:13px;color:var(--accent);font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.mono{font-family:var(--font-mono);font-size:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stack{display:flex;flex-direction:column;gap:10px}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-size:14px;font-weight:600;cursor:pointer;min-height:38px}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.good{background:var(--good);border-color:var(--good);color:var(--surface)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink);border-color:var(--line)}
+.btn.sm{padding:5px 10px;min-height:32px;font-size:13px}
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--sunk);color:var(--muted)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.pill.sage{background:var(--sage-soft);color:var(--sage)}
+.badge{font-family:var(--font-mono);font-size:11px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 7px;font-weight:500}
+/* forms */
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600}
+label.f span.h{font-weight:400;color:var(--muted)}
+input[type=text],input[type=number],select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+textarea{resize:vertical;line-height:1.55}
+input[type=range]{width:100%;accent-color:var(--accent)}
+/* table */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--sunk);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.score{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;font-weight:600}
+.score i{display:block;width:44px;height:6px;border-radius:3px;background:var(--sunk);position:relative;overflow:hidden}
+.score i b{position:absolute;inset:0 auto 0 0;background:var(--sage);border-radius:3px}
+.org{font-weight:600}
+.flag{font-family:var(--font-mono);font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--muted)}
+/* bars */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:96px minmax(0,1fr) 60px;gap:10px;align-items:center;font-size:13px}
+.bar .track{display:flex;height:14px;border-radius:4px;overflow:hidden;background:var(--sunk)}
+.bar .track span{display:block;height:100%}
+.bar .t{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.c-sch{background:var(--accent)} .c-vet{background:var(--sage)} .c-adu{background:var(--warn)}
+/* review */
+.review{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:14px}
+.proj dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 10px;margin:0;font-size:13.5px}
+.proj dt{color:var(--muted)}
+.proj dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.why{background:var(--sage-soft);border-radius:8px;padding:10px 12px;font-size:13.5px;margin-top:12px}
+.why b{color:var(--sage)}
+.mail-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mail{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.6;min-height:260px;overflow-wrap:anywhere}
+.mail.editing{outline:2px solid var(--accent)}
+.subj{font-weight:600;margin-bottom:8px}
+.trans{margin-top:10px;font-size:13px;color:var(--muted);background:var(--sunk);border-radius:8px;padding:10px 12px;white-space:pre-wrap}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.progress{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.progress b{display:block;height:100%;background:var(--accent);transition:width .3s}
+/* replies */
+.reply{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.msg{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--bg);font-size:14px;white-space:pre-wrap}
+.list-item{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.list-item:hover{background:var(--sunk)}
+.list-item.on{border-color:var(--accent);background:var(--accent-soft)}
+.list-item .t{font-weight:600;font-size:14px}
+.list-item .p{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* kanban */
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--sunk);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.col h3{font-size:13px;margin:2px 4px 4px;display:flex;justify-content:space-between}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.card .t{font-weight:600;font-size:13.5px}
+/* inbox health */
+.box{display:grid;grid-template-columns:minmax(0,1fr) 90px 120px 90px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.box:last-child{border-bottom:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.big-out{font-family:var(--font-display);font-size:34px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;background:var(--bg)}
+.chip button{border:0;background:none;cursor:pointer;color:var(--muted);padding:0;font-size:14px;line-height:1}
+.toggle{display:flex;gap:4px;background:var(--sunk);padding:3px;border-radius:8px;width:fit-content;flex-wrap:wrap}
+.toggle button{border:0;background:transparent;border-radius:6px;padding:5px 10px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.toggle button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+.drop{border:1.5px dashed var(--line);border-radius:var(--r);padding:18px;text-align:center;color:var(--muted);font-size:13.5px}
+.todo{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.todo:last-child{border-bottom:0}
+.todo .x{flex:1;min-width:0}
+.sev{width:4px;align-self:stretch;border-radius:2px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:50;max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.src{font-size:12px;color:var(--muted);margin-top:10px}
+.src a{color:inherit}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.review,.reply{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;height:auto;flex-direction:row;align-items:center;gap:12px;padding:10px 0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-right:0;border-bottom:1px solid var(--line);overflow-x:auto}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+  .brand span,.side-foot{display:none}
+  .brand b{white-space:nowrap;font-size:13px}
+  .nav{flex-direction:row}
+  .nav a{white-space:nowrap;padding:6px 10px}
+  .nav .n{display:none}
+  .main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .g3,.g2{grid-template-columns:minmax(0,1fr)}
+  .box{grid-template-columns:minmax(0,1fr) 80px;}
+  .box .hide-sm{display:none}
+  .bar{grid-template-columns:72px minmax(0,1fr) 50px}
+}
+@media (max-width:480px){.g4{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.kpi .v{font-size:24px}.proj dl{grid-template-columns:minmax(0,1fr)}.proj dt{margin-top:4px}}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand"><b>Why Not Bulgaria</b><span>Панел за мобилности</span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">Демо, изградено от Stratford Digital</div>
+  </aside>
+  <main class="main">
+    <div class="demo-bar"><b>Демо версия</b><span>Организациите и проектите са реални, от Erasmus+ Project Results Platform (кандидатстване 2025). Отговорите, сделките и пощите са примерни.</span><a href="../site/" style="margin-left:auto;color:var(--accent);font-weight:600">Демо на новия сайт →</a></div>
+    <div id="view"></div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- реални данни: Erasmus+ Project Results Platform, KA1, кандидатстване 2025, роля координатор ---------- */
+const MARKET = {
+  IT:{name:"Италия",SCH:2125,VET:565,ADU:311}, ES:{name:"Испания",SCH:1980,VET:1098,ADU:366},
+  DE:{name:"Германия",SCH:1673,VET:1054,ADU:132}, PL:{name:"Полша",SCH:782,VET:793,ADU:263},
+  FR:{name:"Франция",SCH:1336,VET:790,ADU:150}, RO:{name:"Румъния",SCH:670,VET:366,ADU:144},
+  EL:{name:"Гърция",SCH:502,VET:313,ADU:96}, PT:{name:"Португалия",SCH:387,VET:291,ADU:123}
+};
+const FORMATS = {
+  vet:{bg:"Професионални практики",short:"Практики"},
+  school:{bg:"Ученическа групова мобилност",short:"Групова мобилност"},
+  shadow:{bg:"Job shadowing",short:"Job shadowing"},
+  course:{bg:"Обучения и курсове",short:"Курсове"}
+};
+const SECTOR = {SCH:"Училищно",VET:"Професионално",ADU:"За възрастни"};
+const LANG = {EN:"Английски",IT:"Италиански",ES:"Испански",PT:"Португалски",DE:"Немски",PL:"Полски",EL:"Гръцки"};
+
+const P = [
+ {id:1,code:"2025-1-PL01-KA122-VET-000318244",org:"Zespół Szkół Technicznych i Ogólnokształcących Nr 4 im. M. Skłodowskiej-Curie",city:"Łomża",c:"PL",s:"VET",eur:60110,title:"Gastrobuild",desc:"Проект за изпращане на 20 ученици и 2 учители от ZSTiO Nr 4 в Ломжа на практика в чужбина.",f:"vet",score:96,lang:"EN",mail:"found",st:"review",why:"Професионална гимназия с практики за 20 ученици. Името подсказва гастрономия и строителство. Точно съвпадение с „Професионални практики“."},
+ {id:2,code:"2025-1-IT01-KA122-VET-000332991",org:"Istituto d'Istruzione Superiore Arrigo Serpieri",city:"Avezzano",c:"IT",s:"VET",eur:35229,title:"Avezzano – Sanlúcar de Barrameda: un'amicizia di-vino",desc:"Технически и професионален институт в провинция Л'Акуила. Мобилност в Санлукар де Барамеда (Испания). Заглавието подсказва винена тема.",f:"vet",score:94,lang:"IT",mail:"found",st:"review",why:"Аграрно и винено направление. Пловдив е в Тракийската низина, един от най-старите винени райони в Европа."},
+ {id:3,code:"2025-1-ES01-KA122-VET-000325727",org:"IES Comercio",city:"Logroño",c:"ES",s:"VET",eur:24963,title:"Impulsando el Futuro Profesional",desc:"IES Comercio в Логроньо кандидатства по KA122 за международна мобилност на ученици от професионалните направления.",f:"vet",score:91,lang:"ES",mail:"found",st:"review",why:"Професионално училище, търговия и администрация. Подходящо за практики в реални фирми."},
+ {id:4,code:"2025-1-PT01-KA122-VET-000328649",org:"Academia Contemporânea do Espectáculo, CRL",city:"Porto",c:"PT",s:"VET",eur:59872,title:"ACE: Arte, Criação, Europa",desc:"Художествен институт, който иска да се утвърди като водещ в Европа чрез мобилности на ученици и преподаватели.",f:"vet",score:87,lang:"EN",mail:"found",st:"review",why:"Сценични изкуства. Пловдив беше Европейска столица на културата през 2019 г. и има Античен театър."},
+ {id:5,code:"2025-1-IT01-KA122-VET-000311965",org:"Istituto d'Istruzione Superiore Inveruno",city:"Inveruno",c:"IT",s:"VET",eur:103086,title:"F.U.T.U.R.A. – Fostering Upskilling of VET learners and sTaff",desc:"Проектът запълва пропуски в уменията на завършващи и настоящи ученици, както и на персонала.",f:"vet",score:88,lang:"EN",mail:"found",st:"review",why:"Голям бюджет (103 086 €), ученици и персонал. Практики плюс job shadowing за учителите."},
+ {id:6,code:"2025-1-ES01-KA122-SCH-000323380",org:"IES José María Parra",city:"Alzira",c:"ES",s:"SCH",eur:25280,title:"Conociendo Europa",desc:"Училището подобрява качеството на образованието чрез интернационализация, приобщаване и образователни иновации.",f:"school",score:85,lang:"EN",mail:"found",st:"review",why:"Училищна мобилност с фокус „опознай Европа“. Подходяща за групова мобилност с връстници в Пловдив."},
+ {id:7,code:"2025-1-DE03-KA122-SCH-000312251",org:"Martin-Luther-King-Gesamtschule",city:"Dortmund",c:"DE",s:"SCH",eur:22726,title:"Aktive europäische Bürgerschaft: Gemeinsam lernen, gemeinsam gestalten",desc:"Училище, ангажирано с демократичните ценности, с проект за активно европейско гражданство.",f:"school",score:83,lang:"EN",mail:"found",st:"review",why:"Тема „европейско гражданство“. Става за общ проект с българско училище."},
+ {id:8,code:"2025-1-ES01-KA122-VET-000320126",org:"Conservatorio Profesional de Música Mestre Tàrrega",city:"Castelló",c:"ES",s:"VET",eur:24464,title:"EU-Chords: Música de cámara en la Educación Musical Europea",desc:"Държавна консерватория. Ученици на 12–18 г. съчетават музикално и общо образование.",f:"school",score:82,lang:"ES",mail:"found",st:"queued",why:"Музикално училище. Възможни съвместни концерти с пловдивски музикални училища."},
+ {id:9,code:"2025-1-IT02-KA121-SCH-000343234",org:"IC Ungaretti – Fucini",city:"Gragnano (NA)",c:"IT",s:"SCH",eur:22895,title:"Акредитиран проект за мобилност (училищно образование)",desc:"Организация с Еразъм+ акредитация. Получава бюджет за мобилности всяка година.",f:"school",score:76,lang:"IT",mail:"found",st:"queued",why:"Акредитирана организация. Получава бюджет всяка година, затова е клиент за дългосрочно сътрудничество."},
+ {id:10,code:"2025-1-IT01-KA121-VET-000311612",org:"Istituto Ferraris-Pancaldo",city:"Savona",c:"IT",s:"VET",eur:88288,title:"Акредитиран проект за мобилност (професионално образование)",desc:"Акредитирана организация с годишен бюджет за мобилности на ученици и персонал.",f:"vet",score:80,lang:"IT",mail:"checking",st:"queued",why:"Акредитирана организация с 88 288 € за 2025 г."},
+ {id:11,code:"2025-1-DE02-KA122-VET-000313465",org:"Staatliche Berufsschule II Coburg",city:"Coburg",c:"DE",s:"VET",eur:14534,title:"Förderung von Nachhaltigkeitskompetenzen in der beruflichen Bildung",desc:"Партнира с Business Academy в Прага за job shadowing на учители с тема устойчивост.",f:"shadow",score:79,lang:"DE",mail:"found",st:"queued",why:"Вече прави job shadowing за учители. Пловдив може да е следващата дестинация."},
+ {id:12,code:"2025-1-ES01-KA122-SCH-000324272",org:"IES Francisco Grande Covián",city:"Zaragoza",c:"ES",s:"SCH",eur:13042,title:"Dose the Change: a bilingual innovation project",desc:"Продължение на eTwinning проекта „Stage the Change“, носител на European Quality Label.",f:"shadow",score:78,lang:"ES",mail:"found",st:"queued",why:"Иновации в двуезичното обучение. Подходящо за job shadowing в училища с профилирано езиково обучение."},
+ {id:13,code:"2025-1-PT01-KA122-SCH-000344857",org:"Agrupamento de Escolas de Ferreiras",city:"Albufeira",c:"PT",s:"SCH",eur:19385,title:"Uma Missão, Um Caminho, Um Futuro",desc:"Мисията е качествено образование за общността чрез иновации в преподаването.",f:"shadow",score:74,lang:"PT",mail:"checking",st:"queued",why:"Обучение на учители за иновации. Job shadowing."},
+ {id:14,code:"2025-1-IT02-KA122-SCH-000308200",org:"Istituto Comprensivo Statale San Marco Argentano",city:"San Marco Argentano",c:"IT",s:"SCH",eur:19021,title:"E-Bullying No More: Più Forti Contro il Cyberbullismo",desc:"Подготовка на учители за справяне с кибертормоза сред ученици и персонал.",f:"course",score:72,lang:"IT",mail:"found",st:"queued",why:"Тема кибертормоз. Подходящо за курс или job shadowing, ако има местен партньор с тази експертиза."},
+ {id:15,code:"2025-1-PL01-KA122-SCH-000343053",org:"Publiczna Szkoła Podstawowa im. Juliana Suskiego",city:"Jasieniec",c:"PL",s:"SCH",eur:57440,title:"Mniej znaczy więcej – rozwój kompetencji kluczowych",desc:"Училището влиза в Еразъм+ за развитие на ключови компетентности.",f:"shadow",score:70,lang:"EN",mail:"found",st:"queued",why:"Ново в Еразъм+ и с добър бюджет. Нуждае се от организатор, който води процеса."},
+ {id:16,code:"2025-1-EL01-KA122-VET-000322442",org:"6th Laboratory Center of C Prefecture",city:"Haidari",c:"EL",s:"VET",eur:17042,title:"Augmented Reality (AR) applications in VET Education",desc:"Развитие на дигитални умения и използване на добавена реалност в професионалното обучение.",f:"course",score:68,lang:"EN",mail:"missing",st:"new",why:"Дигитални умения. Курс с ИТ партньор в Пловдив."},
+ {id:17,code:"2025-1-DE02-KA122-ADU-000339840",org:"European Alternatives Berlin e.V.",city:"Berlin",c:"DE",s:"ADU",eur:53526,title:"Empower Adult Educators for Inclusive Transformative Collaboration",desc:"Развитие на компетенциите на обучители на възрастни за приобщаващо и участващо образование.",f:"course",score:66,lang:"EN",mail:"found",st:"new",why:"Обучители на възрастни. Курсове и обмен на опит с местни НПО."},
+ {id:18,code:"2025-1-IT02-KA122-ADU-000340646",org:"School Raising ETS",city:"Cernusco sul Naviglio",c:"IT",s:"ADU",eur:14457,title:"ENFEA",desc:"Италианска нестопанска организация с над 14 години опит в неформалното образование.",f:"course",score:64,lang:"IT",mail:"found",st:"new",why:"НПО за неформално образование. Средно съвпадение."},
+ {id:19,code:"2025-1-EL01-KA122-SCH-000343623",org:"90th Primary School of Thessaloniki",city:"Thessaloniki",c:"EL",s:"SCH",eur:5757,title:"Училище на приобщаването, многоезичието и специалните нужди",desc:"Подобряване на училищната среда чрез приобщаване и иновации в преподаването.",f:"shadow",score:62,lang:"EN",mail:"found",st:"new",why:"Малък бюджет (5 757 €). Нисък приоритет."},
+ {id:20,code:"2025-1-PT01-KA122-ADU-000338217",org:"Instituto das Irmãs Hospitaleiras do Sagrado Coração de Jesus",city:"Lisboa",c:"PT",s:"ADU",eur:39282,title:"Humanize Care+",desc:"Сближаване с европейските подходи за психично здраве.",f:"shadow",score:60,lang:"PT",mail:"checking",st:"new",why:"Психично здраве. Изисква специализиран домакин."},
+ {id:21,code:"2025-1-ES01-KA122-ADU-000334947",org:"Asociación de Desarrollo Social Participativo IMAGINA",city:"Álora",c:"ES",s:"ADU",eur:17788,title:"Lifelong Volunteering",desc:"Селска НПО в провинция Малага за приобщаване и неформално учене.",f:"course",score:58,lang:"ES",mail:"found",st:"new",why:"Доброволчество. Слабо съвпадение с форматите."},
+ {id:22,code:"2025-1-PL01-KA122-SCH-000332625",org:"Liceum Ogólnokształcące im. Powstańców Wielkopolskich",city:"Tarnowo Podgórne",c:"PL",s:"SCH",eur:34613,title:"Подготовка на учители за двуезично обучение",desc:"Целта е учителите да достигнат ниво B2 по английски за планираното двуезично обучение.",f:"course",score:52,lang:"EN",mail:"found",st:"skip",why:"Търсят езиков курс по английски. Не е силна страна на Пловдив. Системата предлага да се пропусне."}
+];
+
+/* ---------- чернови в нейния стил ---------- */
+const DRAFTS = {
+1:{subj:"Gastrobuild: a placement idea for your next group",body:
+`Dear Erasmus+ team of ZSTiO No. 4 in Łomża,
+
+I came across Gastrobuild on the Erasmus+ Project Results Platform. Sending a group of 20 students and 2 teachers abroad for placements is exactly the kind of mobility we organise in Plovdiv, Bulgaria.
+
+If you are already thinking about your next group, we can arrange placements in real workplaces matched to each student's specialisation, from restaurant kitchens to building companies. We also take care of accommodation, transfers, meals and on-site support, so your teachers can focus on the learning.
+
+Plovdiv is one of the oldest continuously inhabited cities in Europe, it is affordable, and most groups tell us it was a pleasant surprise.
+
+Would a 15-minute call in the coming weeks be useful? I am happy to send a sample two-week programme first.`,
+ps:"P.S. If construction and kitchen placements need to run in parallel, we plan both from the same base, so the group stays together in the evenings."},
+2:{subj:"Dopo Sanlúcar, perché non la Bulgaria? Tirocini nel vino a Plovdiv",body:
+`Gentile referente Erasmus+ dell'IIS "Arrigo Serpieri",
+
+ho letto del vostro progetto "Avezzano – Sanlúcar de Barrameda: un'amicizia di-vino" sulla piattaforma Erasmus+. Ci piace molto l'idea: anche noi pensiamo che un mestiere si impari meglio in un posto nuovo.
+
+Plovdiv si trova nella valle della Tracia, una delle zone vinicole più antiche d'Europa. Per un vostro prossimo gruppo possiamo organizzare tirocini in cantine e aziende agricole della zona, con alloggio, trasferimenti, pasti e una persona sempre presente sul posto.
+
+Se state preparando la prossima candidatura, possiamo inviarvi un programma di esempio di due settimane. Le andrebbe una breve chiamata?`,
+ps:"P.S. In Bulgaria la vendemmia si fa a settembre: un periodo perfetto per un gruppo di studenti del settore agrario.",
+tr:"Превод: Здравейте, прочетохме за проекта ви „Авецано – Санлукар де Барамеда: винено приятелство“. Пловдив е в Тракийската низина, един от най-старите винени райони в Европа. За следваща група можем да организираме практики в изби и стопанства, с настаняване, транспорт, храна и човек на място. Ако подготвяте следващото кандидатстване, можем да изпратим примерна двуседмична програма. Удобен ли е кратък разговор?"},
+3:{subj:"Prácticas en Plovdiv para vuestros alumnos de Comercio",body:
+`Hola, equipo Erasmus+ del IES Comercio:
+
+He visto en la plataforma Erasmus+ vuestro proyecto "Impulsando el Futuro Profesional". Es justo el tipo de movilidad que organizamos en Plovdiv (Bulgaria): prácticas en empresas reales, adaptadas a la especialidad de cada alumno, ya sea comercio, marketing, administración o logística.
+
+Nos encargamos del alojamiento, los traslados, las comidas y del acompañamiento diario, para que vuestros profesores puedan centrarse en el aprendizaje.
+
+Si ya estáis pensando en la próxima convocatoria, os puedo enviar un programa de ejemplo de dos semanas. ¿Os iría bien una llamada de 15 minutos?`,
+ps:"P.S. Plovdiv tiene un clima parecido al de La Rioja en primavera, y también una buena tradición de vino.",
+tr:"Превод: Здравейте, екип на IES Comercio. Видях проекта ви „Импулс за професионалното бъдеще“. Точно такива мобилности организираме в Пловдив: практики в реални фирми според специалността на всеки ученик. Поемаме настаняване, транспорт, храна и ежедневна подкрепа. Ако мислите за следващото кандидатстване, мога да изпратя примерна двуседмична програма. Удобен ли е 15-минутен разговор?"},
+4:{subj:"ACE in Plovdiv? Placements for performing-arts students",body:
+`Dear ACE team,
+
+I read about "ACE: Arte, Criação, Europa" on the Erasmus+ platform. Plovdiv was European Capital of Culture in 2019, and it still has a lively independent arts scene, with a Roman theatre in the old town that hosts performances every summer.
+
+For a future group, we can arrange placements with local theatres, cultural organisations and event teams. Accommodation, transfers, meals and daily on-site support are included.
+
+Would it help if I sent you a sample programme? A short call works too, whatever is easier for you.`,
+ps:"P.S. The Ancient Theatre season runs from June to September, in case your next mobility falls in the summer."},
+5:{subj:"F.U.T.U.R.A. and a fresh perspective from Plovdiv",body:
+`Dear Erasmus+ team at IIS Inveruno,
+
+I found F.U.T.U.R.A. on the Erasmus+ Project Results Platform. Building skills for both students and staff is something we plan for in Plovdiv, Bulgaria, and the two can run side by side.
+
+Your students could do placements in real workplaces matched to their field, while your teachers job-shadow colleagues in Bulgarian vocational schools during the same week. We arrange accommodation, transfers, meals and someone on site every day.
+
+If you are planning your next round, I would be glad to send a sample programme or have a short call.`,
+ps:"P.S. A combined student and staff week is often easier to report on, because both groups share the same learning goals."},
+6:{subj:"Conociendo Europa: why not Bulgaria next?",body:
+`Dear Erasmus+ team at IES José María Parra,
+
+I read about "Conociendo Europa" on the Erasmus+ platform. If your students are getting to know Europe, Bulgaria is a part of it that most groups have not seen yet.
+
+In Plovdiv, we organise school group mobilities where your students work on a shared project with Bulgarian peers of the same age. The sending and hosting schools build the programme together. We take care of accommodation, transfers, meals and daily support.
+
+Would a short call be useful, or should I send a sample one-week programme first?`,
+ps:"P.S. Spanish is a popular foreign language in Plovdiv schools, so your students may be surprised by how many conversations start easily."},
+7:{subj:"Active European citizenship, in Plovdiv",body:
+`Dear team of the Martin-Luther-King-Gesamtschule,
+
+I came across your project "Aktive europäische Bürgerschaft" on the Erasmus+ platform. Learning democracy together with young people from another EU country is the idea behind our school group mobilities in Plovdiv, Bulgaria.
+
+Your students would work on a joint project with a Bulgarian school, and both schools shape the programme together. We handle accommodation, transfers, meals and on-site support.
+
+If you are planning your next mobility, I would be glad to talk for 15 minutes or send you a sample programme.`,
+ps:"P.S. Bulgaria joined the EU in 2007, so local students bring a different perspective to EU citizenship that your students may find interesting."}
+};
+
+/* ---------- примерни отговори (измислени организации) ---------- */
+const REPLIES = [
+ {id:"r1",from:"Liceo (пример), Бари",lang:"EN",cls:"hot",when:"преди 2 ч.",text:"Thank you for your email. We are planning a mobility for 24 students and 3 teachers in April 2027, VET tourism and hospitality. Could you send us an estimate and a sample programme?",draft:"Thank you, that sounds like a great group. For 24 students and 3 teachers in April, we can arrange hospitality placements in hotels and restaurants in Plovdiv's old town. I am attaching a sample two-week programme. Would Thursday or Friday suit you for a 15-minute call to go through the details and the estimate?"},
+ {id:"r2",from:"IES (пример), Севиля",lang:"ES",cls:"hot",when:"преди 5 ч.",text:"Hola, nos interesa un job shadowing para 6 profesores en mayo. ¿Tenéis colegios de FP en Plovdiv?",draft:"¡Hola! Sí, trabajamos con centros de FP en Plovdiv. Para 6 profesores en mayo podemos preparar una semana de job shadowing según vuestras especialidades. ¿Me decís qué familias profesionales os interesan? Así os envío una propuesta concreta."},
+ {id:"r3",from:"Escola (пример), Брага",lang:"PT",cls:"later",when:"вчера",text:"Obrigado. Este ano já temos destino escolhido. Por favor, contactem-nos em setembro.",draft:"Системата е насрочила автоматично напомняне за 1 септември 2027 г. Отговор не е нужен."},
+ {id:"r4",from:"Gymnasium (пример), Лайпциг",lang:"DE",cls:"unsub",when:"вчера",text:"Bitte nehmen Sie uns aus Ihrem Verteiler.",draft:"Адресът е добавен в списъка с отписани. Никоя кампания няма да му пише повече."},
+ {id:"r5",from:"Szkoła (пример), Краков",lang:"EN",cls:"auto",when:"преди 2 дни",text:"I am out of the office until 20 November with limited access to email.",draft:"Автоматичен отговор. Напомнянето е отложено за 23 ноември."}
+];
+const CLS = {hot:["Интерес","good"],later:["По-късно","warn"],unsub:["Отписване","bad"],auto:["Автоотговор",""]};
+
+/* ---------- примерни сделки ---------- */
+const DEALS = {
+ "Интерес":[{t:"Liceo (пример), Бари",d:"24 ученици + 3 учители, април",v:"VET"},{t:"IES (пример), Севиля",d:"6 учители, май",v:"Job shadowing"}],
+ "Разговор":[{t:"Berufskolleg (пример), Есен",d:"Разговор в четвъртък, 11:00",v:"VET"}],
+ "Оферта":[{t:"Agrupamento (пример), Коимбра",d:"Оферта изпратена преди 3 дни",v:"Групова мобилност"},{t:"Istituto (пример), Падуа",d:"Чака бюджет от агенцията",v:"VET"}],
+ "Договор":[{t:"Zespół Szkół (пример), Познан",d:"Подписан, 18 ученици",v:"VET"}],
+ "Пристигане":[{t:"Lycée (пример), Лион",d:"Пристигат на 9 март",v:"Групова мобилност"}]
+};
+
+/* ---------- състояние ---------- */
+const S = {
+  queue: P.filter(p=>DRAFTS[p.id]).map(p=>p.id), qi:0, approved:0, skipped:0,
+  short:{}, ps:{}, trans:{}, edits:{},
+  filters:{c:"all",s:"all",min:0,hideSkip:true},
+  reply:"r1", sentDrafts:{},
+  inboxes:12, perDay:35, total:27000,
+  banned:["евтино","гарантирано","най-добрата цена","Dear Sir/Madam"],
+  unsub:["info@gymnasium-example.de","secretaria@ies-example.es"]
+};
+
+const PAGES = [
+ ["today","Днес"],["find","Намери организации"],["contacts","Контакти"],["style","Моят стил"],
+ ["campaigns","Кампании"],["review","Одобрение"],["sending","Изпращане"],["replies","Отговори"],
+ ["deals","Сделки"],["gdpr","GDPR и отписани"]
+];
+
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const eur = n=>new Intl.NumberFormat("bg-BG",{maximumFractionDigits:0}).format(n)+" €";
+const num = n=>new Intl.NumberFormat("bg-BG").format(n);
+function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("show"),2200)}
+const pending = ()=>Math.max(0,S.queue.length-S.qi);
+const hotCount = ()=>REPLIES.filter(r=>r.cls==="hot"&&!S.sentDrafts[r.id]).length;
+const newReplies = ()=>REPLIES.filter(r=>!S.sentDrafts[r.id]).length;
+const marketTotal = ()=>Object.values(MARKET).reduce((a,m)=>a+m.SCH+m.VET+m.ADU,0);
+function scoreHtml(v){return `<span class="score"><i><b style="width:${v}%"></b></i>${v}</span>`}
+function mailPill(m){return m==="found"?'<span class="pill good">Намерен ✓</span>':m==="checking"?'<span class="pill warn">Проверява се</span>':'<span class="pill bad">Не е намерен</span>'}
+function stPill(s){return {review:'<span class="pill acc">Чака одобрение</span>',queued:'<span class="pill sage">В опашка</span>',new:'<span class="pill">Нов</span>',skip:'<span class="pill bad">Пропусни</span>',approved:'<span class="pill good">Одобрен</span>',skipped:'<span class="pill">Пропуснат</span>'}[s]||""}
+
+function renderNav(cur){
+  const badges={review:pending(),replies:newReplies()};
+  $("#nav").innerHTML=PAGES.map(([k,l],i)=>`<a href="#${k}" class="${k===cur?"on":""}"><span class="n">${String(i+1).padStart(2,"0")}</span>${l}${badges[k]?`<span class="badge">${badges[k]}</span>`:""}</a>`).join("");
+}
+function head(title,sub,right=""){return `<div class="page-head"><div><h1>${title}</h1>${sub?`<p>${sub}</p>`:""}</div>${right?`<div class="row">${right}</div>`:""}</div>`}
+
+/* ---------- 1. Днес ---------- */
+function vToday(){
+  const todos=[
+    pending()?["acc",`${pending()} имейла чакат одобрение`,"Прегледай ги и ги пусни. Отнема около 5 минути.","#review","Към одобрение"]:null,
+    hotCount()?["good",`${hotCount()} организации проявиха интерес`,"Отговорът вече е подготвен. Само го прегледай.","#replies","Отговори"]:null,
+    ["warn","1 пощенска кутия е под лимита","Кутия 7 е на 60% репутация. Системата намали изпращането от нея.","#sending","Виж пощите"],
+    ["sage","143 нови организации от последното търсене","Италия и Испания, професионално образование.","#contacts","Виж контактите"]
+  ].filter(Boolean);
+  return head("Добро утро","Това е всичко, което изисква внимание днес. Останалото системата върши сама.")+
+  `<div class="grid g4">
+    <a class="panel kpi" href="#review"><span class="l">Чакат одобрение</span><span class="v">${pending()}</span><span class="go">Прегледай →</span></a>
+    <a class="panel kpi" href="#replies"><span class="l">Нови отговори</span><span class="v">${newReplies()}</span><span class="go">Отвори →</span></a>
+    <a class="panel kpi" href="#deals"><span class="l">Горещи запитвания</span><span class="v">${hotCount()}</span><span class="go">Към сделките →</span></a>
+    <div class="panel kpi"><span class="l">Изпратени тази седмица</span><span class="v">1 764</span><span class="muted small">12 кутии × ~35 на ден</span></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="panel"><h2>Задачи за днес</h2>${todos.map(t=>`<div class="todo"><span class="sev" style="background:var(--${t[0]==="acc"?"accent":t[0]})"></span><div class="x"><div style="font-weight:600">${t[1]}</div><div class="muted small">${t[2]}</div></div><a class="btn sm" href="${t[3]}">${t[4]}</a></div>`).join("")}</div>
+    <div class="panel"><h2>Пазарът <small>реални данни</small></h2>
+      <div class="big-out">${num(marketTotal())}</div>
+      <p class="muted small" style="margin:4px 0 14px">организации в 8 държави, спечелили проект за мобилност (KA1) само при кандидатстването през 2025 г. Всички те са потенциални клиенти.</p>
+      ${marketBars(4)}
+      <div class="src">Източник: Erasmus+ Project Results Platform, KA1, училищно, професионално образование и образование за възрастни, роля координатор.</div>
+    </div>
+  </div>`;
+}
+function marketBars(limit){
+  const rows=Object.entries(MARKET).map(([k,m])=>[k,m,m.SCH+m.VET+m.ADU]).sort((a,b)=>b[2]-a[2]).slice(0,limit||99);
+  const max=Math.max(...Object.values(MARKET).map(m=>m.SCH+m.VET+m.ADU));
+  return `<div class="bars">${rows.map(([k,m,t])=>`<div class="bar"><span>${m.name}</span><div class="track" style="width:${t/max*100}%" title="${m.name}: училищно ${m.SCH}, професионално ${m.VET}, за възрастни ${m.ADU}"><span class="c-sch" style="width:${m.SCH/t*100}%"></span><span class="c-vet" style="width:${m.VET/t*100}%"></span><span class="c-adu" style="width:${m.ADU/t*100}%"></span></div><span class="t">${num(t)}</span></div>`).join("")}</div>
+  <div class="legend"><span><i class="c-sch"></i>Училищно</span><span><i class="c-vet"></i>Професионално</span><span><i class="c-adu"></i>За възрастни</span></div>`;
+}
+
+/* ---------- 2. Намери организации ---------- */
+function vFind(){
+  const f=S.filters;
+  return head("Намери организации","Системата дърпа одобрените проекти за мобилност от официалната платформа на Еразъм+ всяка седмица. Ти избираш само къде да търси.")+
+  `<div class="grid g2">
+   <div class="panel stack">
+    <h2>Какво търсим</h2>
+    <div class="grid g2">
+      <label class="f">Държава<select id="fc"><option value="all">Всички</option>${Object.entries(MARKET).map(([k,m])=>`<option value="${k}" ${f.c===k?"selected":""}>${m.name}</option>`).join("")}</select></label>
+      <label class="f">Сектор<select id="fs"><option value="all">Всички</option>${Object.entries(SECTOR).map(([k,v])=>`<option value="${k}" ${f.s===k?"selected":""}>${v}</option>`).join("")}</select></label>
+      <label class="f">Година на кандидатстване<select id="fy"><option>2025</option><option>2024</option><option>2023</option></select></label>
+      <label class="f">Тип проект<select id="ft"><option>Мобилност (KA1): краткосрочни и акредитирани</option><option>Само акредитирани (бюджет всяка година)</option></select></label>
+    </div>
+    <label class="f">Минимално съвпадение с моите формати: <span id="fmv">${f.min}</span><input type="range" id="fm" min="0" max="90" step="5" value="${f.min}"></label>
+    <div class="row"><button class="btn primary" id="frun">Търси</button><span class="muted small" id="fres"></span></div>
+   </div>
+   <div class="panel stack">
+    <h2>Вече имам списък</h2>
+    <p class="muted small" style="margin:0">Качи Excel или CSV файл. Системата премахва дубликатите, проверява имейлите и намира проекта на всяка организация.</p>
+    <label class="drop" for="fup">Пусни файл тук или <b style="color:var(--accent)">избери файл</b><br><span class="small">.csv, .xlsx</span><input type="file" id="fup" accept=".csv,.xlsx,.xls" hidden></label>
+    <div id="fupres" class="small"></div>
+   </div>
+  </div>
+  <div class="panel" style="margin-top:14px"><h2>Колко организации има <small>кандидатстване 2025, реални данни</small></h2>${marketBars()}<div class="src">Източник: Erasmus+ Project Results Platform. Числата са организации координатори на проекти за мобилност.</div></div>`;
+}
+function bindFind(){
+  const run=()=>{S.filters.c=$("#fc").value;S.filters.s=$("#fs").value;S.filters.min=+$("#fm").value;
+    const n=filtered().length;
+    const m=S.filters.c==="all"?marketTotal():(S.filters.s==="all"?MARKET[S.filters.c].SCH+MARKET[S.filters.c].VET+MARKET[S.filters.c].ADU:MARKET[S.filters.c][S.filters.s]);
+    $("#fres").innerHTML=`В платформата има <b>${num(m)}</b> такива организации. В демото са заредени ${n}. <a href="#contacts" style="color:var(--accent);font-weight:600">Виж ги →</a>`};
+  $("#frun").onclick=()=>{run();toast("Търсенето е готово")};
+  $("#fm").oninput=e=>$("#fmv").textContent=e.target.value;
+  $("#fup").onchange=e=>{const file=e.target.files[0];if(!file)return;
+    if(/\.csv$/i.test(file.name)){const r=new FileReader();r.onload=()=>{const rows=String(r.result).split(/\r?\n/).filter(x=>x.trim()).length-1;$("#fupres").innerHTML=`<span class="pill good">Прочетен</span> ${esc(file.name)}: ${num(Math.max(0,rows))} реда. В истинската система тук започва почистването и проверката.`};r.readAsText(file)}
+    else $("#fupres").innerHTML=`<span class="pill good">Получен</span> ${esc(file.name)}. В демото се чете само CSV. Истинската система чете и Excel.`};
+}
+function filtered(){const f=S.filters;return P.filter(p=>(f.c==="all"||p.c===f.c)&&(f.s==="all"||p.s===f.s)&&p.score>=f.min)}
+
+/* ---------- 3. Контакти ---------- */
+function vContacts(){
+  const list=filtered().filter(p=>!(S.filters.hideSkip&&p.st==="skip")).sort((a,b)=>b.score-a.score);
+  return head("Контакти",`${list.length} организации, подредени по съвпадение с твоите формати. Всеки ред е реален одобрен проект.`,
+   `<label class="row small" style="font-weight:600"><input type="checkbox" id="hs" ${S.filters.hideSkip?"checked":""}> Скрий слабите съвпадения</label>`)+
+  `<div class="tbl-wrap"><table><thead><tr><th>Организация</th><th>Проект</th><th>Формат</th><th>Съвпадение</th><th>Бюджет</th><th>Имейл</th><th>Език</th><th>Статус</th></tr></thead><tbody>
+  ${list.map(p=>`<tr><td><div class="org">${esc(p.org)}</div><div class="muted small">${esc(p.city)} <span class="flag">${p.c}</span></div></td>
+  <td style="min-width:220px"><div class="small">${esc(p.title)}</div><div class="mono muted">${p.code}</div></td>
+  <td><span class="pill sage">${FORMATS[p.f].short}</span></td><td>${scoreHtml(p.score)}</td><td class="num">${eur(p.eur)}</td>
+  <td>${mailPill(p.mail)}</td><td class="small">${LANG[p.lang]}</td><td>${stPill(p.st)}</td></tr>`).join("")}
+  </tbody></table></div>
+  <p class="src">Имейлите на организациите са скрити в демото. Системата ги намира от сайтовете на организациите и ги проверява, преди да изпрати нещо.</p>`;
+}
+function bindContacts(){$("#hs").onchange=e=>{S.filters.hideSkip=e.target.checked;route()}}
+
+/* ---------- 4. Моят стил ---------- */
+function vStyle(){
+  return head("Моят стил","Оттук AI се учи да пише като теб. Колкото повече твои имейли сложиш, толкова по-малко ще редактираш.",`<button class="btn primary" id="ssave">Запази</button>`)+
+  `<div class="grid g2">
+   <div class="panel stack">
+    <h2>Твои имейли, които са получили отговор</h2>
+    <label class="f">Постави 5–10 имейла, по един в поле <span class="h">Пример: имейл, на който училище е отговорило</span>
+      <textarea id="s1" rows="9">Dear colleagues,
+
+I saw that your school is preparing a new Erasmus+ mobility, and I wanted to share an idea: why not Plovdiv? We host groups in real workplaces and schools, and we stay with them from the airport to the last day...</textarea></label>
+    <button class="btn sm" id="sadd" style="width:fit-content">+ Добави още имейл</button>
+    <div id="sextra"></div>
+   </div>
+   <div class="stack">
+    <div class="panel stack">
+     <h2>Тон</h2>
+     <div class="toggle" id="tone"><button class="on">Топъл</button><button>Делови</button><button>Кратък</button></div>
+     <label class="f">Обръщение<select id="sal"><option>Към екипа по Еразъм+ („Dear Erasmus+ team“)</option><option>Към координатора по име, ако е известно</option></select></label>
+     <label class="f">Подпис<textarea id="ssig" rows="3">Why Not Bulgaria
+Educational mobilities · Plovdiv, Bulgaria</textarea></label>
+    </div>
+    <div class="panel stack">
+     <h2>Неща, които никога не казвам</h2>
+     <div class="chips" id="ban">${S.banned.map((b,i)=>`<span class="chip">${esc(b)}<button data-i="${i}" aria-label="Премахни">×</button></span>`).join("")}</div>
+     <div class="row"><input type="text" id="bnew" placeholder="напр. „оферта само днес“" style="flex:1"><button class="btn sm" id="badd">Добави</button></div>
+    </div>
+   </div>
+  </div>
+  <div class="panel" style="margin-top:14px"><h2>Моите формати <small>AI предлага само тях</small></h2>
+   <div class="grid g2">${Object.entries(FORMATS).map(([k,v])=>`<label class="f">${v.bg}<textarea rows="3" id="fmt-${k}">${{vet:"Практики в реални фирми според специалността на учениците. Настаняване, транспорт, храна и човек на място.",school:"Общи дейности и проекти с български връстници в Пловдив. Училищата изграждат програмата заедно.",shadow:"Учители и служители наблюдават колеги в български училища и организации.",course:"Практически обучения и обмен на опит, изградени около целите на групата."}[k]}</textarea></label>`).join("")}</div>
+  </div>`;
+}
+function bindStyle(){
+  $("#ssave").onclick=()=>toast("Стилът е запазен");
+  $("#sadd").onclick=()=>{const t=document.createElement("textarea");t.rows=5;t.placeholder="Постави имейл тук";t.id="sx"+Date.now();t.style.marginTop="8px";$("#sextra").appendChild(t);t.focus()};
+  $("#tone").onclick=e=>{if(e.target.tagName!=="BUTTON")return;[...$("#tone").children].forEach(b=>b.classList.toggle("on",b===e.target))};
+  $("#ban").onclick=e=>{if(e.target.dataset.i!==undefined){S.banned.splice(+e.target.dataset.i,1);route()}};
+  $("#badd").onclick=()=>{const v=$("#bnew").value.trim();if(v){S.banned.push(v);route();toast("Добавено")}};
+}
+
+/* ---------- 5. Кампании ---------- */
+function vCampaigns(){
+  const camps=[
+   {n:"Професионални гимназии, Италия и Испания",seg:"VET · IT, ES · съвпадение 75+",lang:"Езикът на получателя",sent:2140,tot:3800,rep:"4,1%",st:["Работи","good"]},
+   {n:"Училища, Полша и Германия",seg:"SCH · PL, DE · съвпадение 70+",lang:"Английски",sent:610,tot:2500,rep:"3,2%",st:["Работи","good"]},
+   {n:"Акредитирани организации, цяла Европа",seg:"KA121 · 8 държави",lang:"Езикът на получателя",sent:0,tot:4200,rep:"–",st:["Чернова","warn"]}
+  ];
+  return head("Кампании","Една кампания е: кои организации, за кой формат, на какъв език и колко напомняния.")+
+  `<div class="grid g3">${camps.map(c=>`<div class="panel stack"><div class="row" style="justify-content:space-between"><span class="pill ${c.st[1]}">${c.st[0]}</span><span class="muted small">Отговори: <b style="color:var(--ink)">${c.rep}</b></span></div>
+   <div style="font-weight:600">${c.n}</div><div class="muted small">${c.seg}<br>${c.lang}</div>
+   <div class="progress"><b style="width:${c.sent/c.tot*100}%"></b></div><div class="small muted">${num(c.sent)} от ${num(c.tot)} изпратени</div></div>`).join("")}</div>
+  <div class="panel" style="margin-top:14px"><h2>Нова кампания</h2>
+   <div class="grid g3">
+    <label class="f">Име<input type="text" id="cn" value="Професионални гимназии, Португалия"></label>
+    <label class="f">Формат<select id="cf">${Object.entries(FORMATS).map(([k,v])=>`<option value="${k}">${v.bg}</option>`).join("")}</select></label>
+    <label class="f">Език<select id="cl"><option>Езикът на получателя</option><option>Английски за всички</option></select></label>
+    <label class="f">Държави<select id="cc"><option>Португалия</option><option>Италия, Испания, Португалия</option><option>Всички</option></select></label>
+    <label class="f">Напомняния<select id="cr"><option>2 напомняния: след 4 и след 9 дни</option><option>1 напомняне след 5 дни</option><option>Без напомняния</option></select></label>
+    <label class="f">Кой одобрява<select id="ca"><option>Аз одобрявам първите 20, после пускам всички</option><option>Одобрявам всеки имейл</option><option>Само топ съвпаденията минават през мен</option></select></label>
+   </div>
+   <div class="row" style="margin-top:14px"><button class="btn primary" id="cgo">Генерирай чернови</button><span class="muted small">AI пише по един имейл за всяка организация според проекта ѝ. Нищо не се изпраща без одобрение.</span></div>
+  </div>`;
+}
+function bindCampaigns(){$("#cgo").onclick=()=>{toast("Черновите са готови за одобрение");setTimeout(()=>location.hash="#review",700)}}
+
+/* ---------- 6. Одобрение ---------- */
+function curDraft(){return S.queue[S.qi]}
+function draftText(id){
+  if(S.edits[id]!==undefined)return S.edits[id];
+  const d=DRAFTS[id];let body=d.body;
+  if(S.short[id]){const parts=body.split("\n\n");body=[parts[0],parts[1],parts[parts.length-1]].join("\n\n")}
+  if(S.ps[id])body+="\n\n"+d.ps;
+  return body+"\n\n"+($("#ssig")?$("#ssig").value:"Why Not Bulgaria\nEducational mobilities · Plovdiv, Bulgaria");
+}
+function vReview(){
+  const total=S.queue.length;
+  if(S.qi>=total){return head("Одобрение","")+`<div class="panel empty"><div class="big-out" style="color:var(--good)">Готово</div><p>Одобрени: <b>${S.approved}</b> · Пропуснати: <b>${S.skipped}</b></p><p class="small">Одобрените имейли влизат в графика за изпращане и тръгват постепенно от различните пощи.</p><div class="row" style="justify-content:center;margin-top:10px"><a class="btn primary" href="#sending">Виж графика</a><button class="btn" id="rreset">Започни демото отначало</button></div></div>`}
+  const id=curDraft(),p=P.find(x=>x.id===id),d=DRAFTS[id];
+  return head("Одобрение",`Имейл ${S.qi+1} от ${total}. Отляво е проектът им, отдясно е черновата. Одобряваш, редактираш или пропускаш.`,
+   `<button class="btn" id="rall">Одобри всички останали (${total-S.qi})</button>`)+
+  `<div class="progress" style="margin-bottom:14px"><b style="width:${S.qi/total*100}%"></b></div>
+  <div class="review">
+   <div class="panel proj"><div class="eyebrow">Техният проект</div><h2 style="font-size:17px;margin:6px 0 12px">${esc(p.org)}</h2>
+    <dl><dt>Град</dt><dd>${esc(p.city)} <span class="flag">${p.c}</span></dd><dt>Проект</dt><dd>${esc(p.title)}</dd><dt>Код</dt><dd class="mono">${p.code}</dd><dt>Бюджет</dt><dd>${eur(p.eur)}</dd><dt>Сектор</dt><dd>${SECTOR[p.s]}</dd><dt>За проекта</dt><dd>${esc(p.desc)}</dd></dl>
+    <div class="why"><b>Защо е подходящ (${p.score}/100):</b> ${esc(p.why)}<br><b>Формат:</b> ${FORMATS[p.f].bg}</div>
+   </div>
+   <div class="panel">
+    <div class="mail-head"><div class="row"><span class="pill">${LANG[p.lang]}</span>${S.edits[id]!==undefined?'<span class="pill warn">Редактиран</span>':""}</div>${d.tr?`<button class="btn sm ghost" id="rtr">${S.trans[id]?"Скрий превода":"Покажи превод на български"}</button>`:""}</div>
+    <div class="subj">Тема: ${esc(d.subj)}</div>
+    <div class="mail" id="rmail">${esc(draftText(id))}</div>
+    ${d.tr&&S.trans[id]?`<div class="trans">${esc(d.tr)}</div>`:""}
+    <div class="actions">
+      <button class="btn good" id="rok">Одобри</button>
+      <button class="btn" id="redit">Редактирай</button>
+      <button class="btn" id="rshort">${S.short[id]?"Пълна версия":"По-кратко"}</button>
+      <button class="btn" id="rps">${S.ps[id]?"Махни P.S.":"По-лично (добави P.S.)"}</button>
+      <button class="btn ghost" id="rskip">Пропусни</button>
+    </div>
+   </div>
+  </div>`;
+}
+function bindReview(){
+  if($("#rreset")){$("#rreset").onclick=()=>{S.qi=0;S.approved=0;S.skipped=0;P.forEach(p=>{if(DRAFTS[p.id])p.st="review"});route()};return}
+  const id=curDraft(),p=P.find(x=>x.id===id);
+  const next=(ok)=>{const m=$("#rmail");if(m.isContentEditable)S.edits[id]=m.innerText;p.st=ok?"approved":"skipped";ok?S.approved++:S.skipped++;S.qi++;toast(ok?"Одобрен. Влиза в графика за изпращане":"Пропуснат");route()};
+  $("#rok").onclick=()=>next(true);
+  $("#rskip").onclick=()=>next(false);
+  $("#rshort").onclick=()=>{delete S.edits[id];S.short[id]=!S.short[id];route()};
+  $("#rps").onclick=()=>{delete S.edits[id];S.ps[id]=!S.ps[id];route()};
+  if($("#rtr"))$("#rtr").onclick=()=>{S.trans[id]=!S.trans[id];route()};
+  $("#redit").onclick=e=>{const m=$("#rmail");const on=!m.isContentEditable;m.contentEditable=on;m.classList.toggle("editing",on);e.target.textContent=on?"Запази редакцията":"Редактирай";if(on)m.focus();else{S.edits[id]=m.innerText;route();toast("Редакцията е запазена")}};
+  $("#rall").onclick=()=>{let n=0;while(S.qi<S.queue.length){P.find(x=>x.id===S.queue[S.qi]).st="approved";S.approved++;S.qi++;n++}toast(`${n} имейла са одобрени`);route()};
+}
+
+/* ---------- 7. Изпращане ---------- */
+function vSending(){
+  const days=Math.ceil(S.total/(S.inboxes*S.perDay));
+  const weeks=Math.ceil(days/5);
+  const boxes=[["mobility-plovdiv.eu (пример)","anna@",100,35],["mobility-plovdiv.eu (пример)","info@",98,35],["mobility-plovdiv.eu (пример)","programmes@",97,35],["plovdiv-erasmus.eu (пример)","hello@",95,35],["plovdiv-erasmus.eu (пример)","groups@",94,35],["plovdiv-erasmus.eu (пример)","team@",92,35],["visit-plovdiv-edu.eu (пример)","office@",60,10],["visit-plovdiv-edu.eu (пример)","contact@",91,35]];
+  return head("Изпращане","Имейлите тръгват постепенно от няколко пощи, за да стигат до входящата кутия, а не до спама. Отговорите от всички пощи идват на едно място.",`<button class="btn" id="spause">Пауза за всичко</button>`)+
+  `<div class="grid g2">
+   <div class="panel stack"><h2>Колко време за ${num(S.total)} имейла?</h2>
+    <label class="f">Брой имейли: <span id="tv">${num(S.total)}</span><input type="range" id="tt" min="1000" max="40000" step="1000" value="${S.total}"></label>
+    <label class="f">Пощенски кутии: <span id="iv">${S.inboxes}</span><input type="range" id="ib" min="1" max="24" value="${S.inboxes}"></label>
+    <label class="f">Имейла на ден от кутия: <span id="pv">${S.perDay}</span> <span class="h">безопасно е до 40</span><input type="range" id="pd" min="10" max="50" step="5" value="${S.perDay}"></label>
+    <div class="row" style="gap:24px;align-items:flex-end;margin-top:4px"><div><div class="eyebrow">На ден</div><div class="big-out" id="od">${num(S.inboxes*S.perDay)}</div></div><div><div class="eyebrow">Готово за</div><div class="big-out" id="ow">${weeks} седм.</div></div></div>
+    <p class="muted small" style="margin:0" id="onote">${S.perDay>40?'<span class="pill bad">Риск</span> Над 40 на ден от кутия пощите бързо отиват в спама.':'Ръчно, при 5 минути на имейл, това са '+num(Math.round(S.total*5/60))+' часа работа.'}</p>
+   </div>
+   <div class="panel"><h2>Пощенски кутии <small>8 от 12 показани</small></h2>
+    ${boxes.map(b=>{const c=b[2]>=90?"good":b[2]>=75?"warn":"bad";return `<div class="box"><div style="min-width:0"><div style="font-weight:600;overflow-wrap:anywhere">${b[1]}${b[0].split(" ")[0]}</div><div class="muted small">${b[0].includes("пример")?"примерен домейн":""}</div></div><div><span class="dot" style="background:var(--${c})"></span>${b[2]}%</div><div class="hide-sm small muted">${b[3]} на ден</div><div class="hide-sm">${c==="good"?'<span class="pill good">Здрава</span>':'<span class="pill bad">Намалена</span>'}</div></div>`}).join("")}
+    <p class="src">SPF, DKIM и DMARC са настроени за всеки домейн. Новите кутии се „загряват“ 2–3 седмици преди да пращат пълния обем.</p>
+   </div>
+  </div>`;
+}
+function bindSending(){
+  const upd=()=>{S.total=+$("#tt").value;S.inboxes=+$("#ib").value;S.perDay=+$("#pd").value;
+    $("#tv").textContent=num(S.total);$("#iv").textContent=S.inboxes;$("#pv").textContent=S.perDay;
+    const days=Math.ceil(S.total/(S.inboxes*S.perDay));$("#od").textContent=num(S.inboxes*S.perDay);$("#ow").textContent=Math.ceil(days/5)+" седм.";
+    $("#onote").innerHTML=S.perDay>40?'<span class="pill bad">Риск</span> Над 40 на ден от кутия пощите бързо отиват в спама.':'Ръчно, при 5 минути на имейл, това са '+num(Math.round(S.total*5/60))+' часа работа.'};
+  ["#tt","#ib","#pd"].forEach(s=>$(s).oninput=upd);
+  $("#spause").onclick=e=>{const p=e.target.textContent==="Пауза за всичко";e.target.textContent=p?"Пусни отново":"Пауза за всичко";toast(p?"Изпращането е спряно":"Изпращането продължава")};
+}
+
+/* ---------- 8. Отговори ---------- */
+function vReplies(){
+  const r=REPLIES.find(x=>x.id===S.reply)||REPLIES[0];const c=CLS[r.cls];const done=S.sentDrafts[r.id];
+  const canSend=r.cls==="hot";
+  return head("Отговори","AI чете всеки отговор и го подрежда. Ти виждаш само тези, които искат нещо от теб.")+
+  `<div class="reply">
+   <div class="panel" style="padding:8px">${REPLIES.map(x=>`<div class="list-item ${x.id===r.id?"on":""}" data-r="${x.id}" tabindex="0" role="button"><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><span class="t">${esc(x.from)}</span><span class="muted small">${x.when}</span></div><div class="p">${esc(x.text)}</div><div style="margin-top:6px"><span class="pill ${CLS[x.cls][1]}">${CLS[x.cls][0]}</span>${S.sentDrafts[x.id]?' <span class="pill good">Отговорено</span>':""}</div></div></div>`).join("")}</div>
+   <div class="panel stack">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(r.from)}</h2><span class="pill ${c[1]}">${c[0]}</span></div>
+    <div class="msg">${esc(r.text)}</div>
+    <div class="eyebrow" style="margin-top:6px">${canSend?"Подготвен отговор":"Какво направи системата"}</div>
+    ${canSend?`<textarea id="rd" rows="7">${esc(r.draft)}</textarea>`:`<div class="msg" style="background:var(--sunk)">${esc(r.draft)}</div>`}
+    ${canSend?`<div class="row"><button class="btn primary" id="rsend" ${done?"disabled":""}>${done?"Изпратено":"Изпрати отговора"}</button><button class="btn" id="rdeal">Премести в „Разговор“</button></div>`:""}
+   </div>
+  </div>`;
+}
+function bindReplies(){
+  document.querySelectorAll("[data-r]").forEach(el=>{el.onclick=()=>{S.reply=el.dataset.r;route()};el.onkeydown=e=>{if(e.key==="Enter"){S.reply=el.dataset.r;route()}}});
+  if($("#rsend"))$("#rsend").onclick=()=>{S.sentDrafts[S.reply]=true;toast("Отговорът е изпратен");route()};
+  if($("#rdeal"))$("#rdeal").onclick=()=>{const r=REPLIES.find(x=>x.id===S.reply);const i=DEALS["Интерес"].findIndex(d=>d.t===r.from);if(i>-1){DEALS["Разговор"].unshift(DEALS["Интерес"].splice(i,1)[0])}toast("Преместено в „Разговор“")};
+}
+
+/* ---------- 9. Сделки ---------- */
+function vDeals(){
+  return head("Сделки","От първия отговор до пристигането на групата в Пловдив. Натисни „→“, за да преместиш напред.")+
+  `<div class="kanban">${Object.entries(DEALS).map(([k,arr],ci,all)=>`<div class="col"><h3>${k}<span class="muted">${arr.length}</span></h3>${arr.map((d,i)=>`<div class="card"><span class="t">${esc(d.t)}</span><span class="muted">${esc(d.d)}</span><div class="row" style="justify-content:space-between"><span class="pill sage">${esc(d.v)}</span>${ci<all.length-1?`<button class="btn sm ghost" data-mv="${k}|${i}" aria-label="Премести напред">→</button>`:""}</div></div>`).join("")||'<div class="muted small" style="padding:6px">Няма</div>'}</div>`).join("")}</div>
+  <p class="src">Всички сделки на тази страница са примерни.</p>`;
+}
+function bindDeals(){document.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{const [k,i]=b.dataset.mv.split("|");const keys=Object.keys(DEALS);const nk=keys[keys.indexOf(k)+1];DEALS[nk].unshift(DEALS[k].splice(+i,1)[0]);toast(`Преместено в „${nk}“`);route()})}
+
+/* ---------- 10. GDPR ---------- */
+function vGdpr(){
+  return head("GDPR и отписани","Пишем само до служебни адреси на организации, всеки имейл има линк за отписване и всичко се записва.")+
+  `<div class="grid g2">
+   <div class="panel stack"><h2>Текст в края на всеки имейл</h2>
+    <textarea id="gf" rows="5">You are receiving this email because your organisation is listed as the coordinator of an Erasmus+ mobility project on the public Erasmus+ Project Results Platform. If you prefer not to hear from us, reply "unsubscribe" or use this link: [отписване]</textarea>
+    <div class="row"><span class="pill good">Отписване с един клик ✓</span><span class="pill good">SPF, DKIM, DMARC ✓</span><span class="pill good">Лог на изпращанията ✓</span></div>
+   </div>
+   <div class="panel stack"><h2>Отписани адреси <small>${S.unsub.length}</small></h2>
+    ${S.unsub.map(u=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:8px"><span class="mono">${esc(u)}</span><span class="muted small">никога повече</span></div>`).join("")}
+    <div class="row"><input type="text" id="gu" placeholder="адрес за ръчно отписване" style="flex:1"><button class="btn sm" id="gadd">Добави</button></div>
+    <p class="muted small" style="margin:0">Примерни адреси. Системата проверява този списък преди всяко изпращане.</p>
+   </div>
+  </div>
+  <div class="panel" style="margin-top:14px"><h2>Основание за обработка</h2><p class="small" style="margin:0;max-width:75ch">Легитимен интерес (чл. 6, ал. 1, буква „е“ от GDPR) за делово предложение към организации, които публично изпълняват проекти по Еразъм+. Пазим само име на организацията, служебен имейл и публичните данни за проекта. Документът с преценката на легитимния интерес се пази тук и се преглежда веднъж годишно.</p></div>`;
+}
+function bindGdpr(){$("#gadd").onclick=()=>{const v=$("#gu").value.trim();if(v){S.unsub.unshift(v);route();toast("Адресът е отписан")}}}
+
+/* ---------- рутиране ---------- */
+const VIEWS={today:[vToday],find:[vFind,bindFind],contacts:[vContacts,bindContacts],style:[vStyle,bindStyle],campaigns:[vCampaigns,bindCampaigns],review:[vReview,bindReview],sending:[vSending,bindSending],replies:[vReplies,bindReplies],deals:[vDeals,bindDeals],gdpr:[vGdpr,bindGdpr]};
+function route(){
+  const k=(location.hash||"#today").slice(1);const v=VIEWS[k]||VIEWS.today;const key=VIEWS[k]?k:"today";
+  renderNav(key);$("#view").innerHTML=v[0]();if(v[1])v[1]();
+  document.title="Why Not Bulgaria Panel";
+}
+let lastKey=null;
+window.addEventListener("hashchange",()=>{route();window.scrollTo(0,0)});
+route();
+</script>
